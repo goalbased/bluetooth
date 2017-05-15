@@ -2,7 +2,7 @@ import requests
 import bluetooth
 import time
 import pexpect
-import os, sys, subprocess, shlex, re
+import os, sys, subprocess, shlex, re, json
 
 
 last_devices = []
@@ -70,7 +70,12 @@ while(True):
     print id
     print battery
     if sorted(current_devices) != sorted(last_devices):
-        print 'post'
+        request_data = []        
+        for index, address in enumerate(mac_address):
+            request_data.append({"csn": id[index], "mac":address, "battery":battery[index] })        
+        print 'post' + json.dumps(request_data)
+        r = requests.post("http://dev_bike.infinitas.tech/station_v1/resp_locks", data=json.dumps(request_data))
+        print r.text
         last_devices = current_devices
     else:
         print "current devices == last devices so not post"
